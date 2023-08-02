@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: odoo-statefulset
+  labels:
+    app: app-odoo
+spec:
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: app-odoo
+  template:
+    metadata:
+      name: odoo-pod
+      labels:
+        app: app-odoo
+    spec:
+      containers:
+        - name: odoo-container
+          image: library/odoo:16
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8069
+          env:
+            - name: HOST
+              value: postgres-container
+            - name: USER
+              value: odoo
+            - name: PASSWORD
+              value: myodoo
+          volumeMounts:
+            - mountPath: "/mnt/extra-addons"
+              name: pvc-odoo-addons
+            - mountPath: "/etc/odoo"
+              name: pvc-odoo-config
+            - mountPath: "/var/lib/odoo"
+              name: pvc-odoo-web-data
+        - name: postgres-container
+          image: library/postgres:15.3-alpine3.18
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: myodoo
+            - name: POSTGRES_USER
+              value: odoo
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data/pgdata"
+              name: pvc-postgres
+
+  volumeClaimTemplates:
+    - metadata:
+        name: pvc-odoo-addons
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+        storageClassName: class-odoo-addons
+    - metadata:
+        name: pvc-odoo-config
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: class-odoo-config
+    - metadata:
+        name: pvc-odoo-web-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: class-odoo-web-data
+    - metadata:
+        name: pvc-postgres
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Mi
+        storageClassName: class-postgres
