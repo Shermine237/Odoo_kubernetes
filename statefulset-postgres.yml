@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-statefulset
+  labels:
+    app: app-odoo
+spec:
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: app-odoo
+  template:
+    metadata:
+      name: postgres-pod
+      labels:
+        app: app-odoo
+    spec:
+      containers:
+        - name: postgres-container
+          image: library/postgres:15.3-alpine3.18
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: myodoo
+            - name: POSTGRES_USER
+              value: odoo
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data/pgdata"
+              name: pvc-postgres
+
+  volumeClaimTemplates:
+    - metadata:
+        name: pvc-postgres
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Mi
+        storageClassName: class-postgres

@@ -27,7 +27,7 @@ spec:
             - containerPort: 8069
           env:
             - name: HOST
-              value: postgres-container
+              value: postgres-pod
             - name: USER
               value: odoo
             - name: PASSWORD
@@ -39,21 +39,6 @@ spec:
               name: pvc-odoo-config
             - mountPath: "/var/lib/odoo"
               name: pvc-odoo-web-data
-        - name: postgres-container
-          image: library/postgres:15.3-alpine3.18
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_DB
-              value: postgres
-            - name: POSTGRES_PASSWORD
-              value: myodoo
-            - name: POSTGRES_USER
-              value: odoo
-          volumeMounts:
-            - mountPath: "/var/lib/postgresql/data/pgdata"
-              name: pvc-postgres
 
   volumeClaimTemplates:
     - metadata:
@@ -83,12 +68,3 @@ spec:
           requests:
             storage: 1Gi
         storageClassName: class-odoo-web-data
-    - metadata:
-        name: pvc-postgres
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 100Mi
-        storageClassName: class-postgres
