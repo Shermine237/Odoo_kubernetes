@@ -1,0 +1,18 @@
+Apply Postgres before Odoo
+
+kubectl apply -f namespace.yml
+
+1- Namespace
+
+
+kubeclt --namespace [name] apply -f file
+
+2- Class-storage
+
+3- PVs
+
+4- Statefulset
+
+5- Service ClusterIp
+
+6- Service Nodeport
