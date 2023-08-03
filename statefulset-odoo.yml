@@ -27,7 +27,7 @@ spec:
             - containerPort: 8069
           env:
             - name: HOST
-              value: postgres-pod
+              value: postgres-service
             - name: USER
               value: odoo
             - name: PASSWORD
