@@ -16,3 +16,5 @@ kubeclt --namespace [name] apply -f file
 5- Service ClusterIp
 
 6- Service Nodeport
+
+7- ingress-nginx
