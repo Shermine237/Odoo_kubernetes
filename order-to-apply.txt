@@ -17,4 +17,6 @@ kubeclt --namespace [name] apply -f file
 
 6- Service Nodeport
 
-7- ingress-nginx
+7- Install ingres controler pod (read my repository installation guide)
+
+8- ingress-nginx
