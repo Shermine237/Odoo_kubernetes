@@ -24,6 +24,30 @@ spec:
       port: 8069
       targetPort: 8069
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-odoo-addons
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: nfs-client
+  ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-odoo-web-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: nfs-client
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -59,35 +83,20 @@ spec:
             - name: PASSWORD
               value: odoo
           volumeMounts:
-            - mountPath: "/mnt/extra-addons"
-              name: pvc-odoo-addons
-            - mountPath: "/var/lib/odoo"
-              name: pvc-odoo-web-data
-            - mountPath: /etc/odoo/odoo.conf
+            - name: volume-odoo-addons
+              mountPath: "/mnt/extra-addons"
+            - name: volume-odoo-web-data
+              mountPath: "/var/lib/odoo"
+            - name: volume-config
+              mountPath: /etc/odoo/odoo.conf
               subPath: odoo.conf
-              name: config-volume
-
-  volumeClaimTemplates:
-    - metadata:
-        name: pvc-odoo-addons
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 2Gi
-        storageClassName: nfs-client
-    - metadata:
-        name: pvc-odoo-web-data
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 8Gi
-        storageClassName: nfs-client
-    - metadata:
-        name: config-volume
-      spec:
-        configMap:
-          name: odoo-config
+      volumes:
+        - name: volume-odoo-addons
+          persistentVolumeClaim:
+            claimName: pvc-odoo-addons
+        - name: volume-odoo-web-data
+          persistentVolumeClaim:
+            claimName: pvc-odoo-web-data
+        - name: config-volume
+          configMap:
+            name: odoo-config
