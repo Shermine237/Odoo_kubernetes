@@ -97,6 +97,6 @@ spec:
         - name: volume-odoo-web-data
           persistentVolumeClaim:
             claimName: pvc-odoo-web-data
-        - name: config-volume
+        - name: volume-config
           configMap:
             name: odoo-config
